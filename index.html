@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Queenn Surprise — FOR UEENN</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#fff0f6;
+    --bg2:#ffe6f2;
+    --accent:#ff4da6;
+    --accent-2:#ff79c6;
+    --muted:#9c3a5b;
+    --glass: rgba(255,255,255,0.16);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:"Poppins",system-ui,Segoe UI,Roboto,Arial}
+  body{
+    display:flex;align-items:center;justify-content:center;
+    background:
+      radial-gradient(600px 300px at 10% 10%, rgba(255,182,193,0.12), transparent 18%),
+      radial-gradient(700px 350px at 90% 90%, rgba(255,205,220,0.10), transparent 18%),
+      linear-gradient(120deg,var(--bg1),var(--bg2));
+    padding:20px;
+    /* allow scrolling so small screens / mobile can scroll freely */
+    overflow:auto;
+  }
+
+  /* keep a roomy container so content isn't clipped on small screens */
+  .wrap { width:100%; max-width:1000px; padding:18px; }
+
+  /* Card */
+  .card{
+    width:100%;max-width:900px;background:var(--glass);backdrop-filter:blur(10px);
+    border-radius:18px;padding:20px;box-shadow:0 12px 44px rgba(255,105,180,0.12);
+    position:relative;
+  }
+  .head{display:flex;align-items:center;gap:12px}
+  .logo{width:60px;height:60px;border-radius:12px;background:linear-gradient(180deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:white;font-weight:800}
+  .title{font-size:20px;color:var(--accent);font-weight:700}
+  .desc{color:var(--muted);font-size:13px;margin-top:4px}
+
+  .layout{display:flex;gap:18px;margin-top:16px}
+  .left{flex:1}
+  .right{width:320px}
+
+  .qbox{background:#fff;border-radius:12px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,0.06)}
+  .q-text{font-size:18px;color:#5a1638;margin-bottom:12px;min-height:52px}
+  .options{display:flex;flex-direction:column;gap:10px}
+  .opt{background:linear-gradient(180deg,#fff,#fff);border-radius:10px;padding:10px 12px;border:1px solid rgba(255,20,147,0.06);cursor:pointer;display:flex;align-items:center;gap:12px;transition:transform .14s cubic-bezier(.2,.8,.2,1),box-shadow .14s; user-select:none}
+  .opt:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(255,105,180,0.08)}
+  .bullet{width:44px;height:44px;border-radius:10px;background:linear-gradient(180deg,#fff0f6,#fff);display:flex;align-items:center;justify-content:center;font-weight:700;color:#b02060;box-shadow:inset 0 2px 6px rgba(255,255,255,0.7)}
+  .meta{display:flex;justify-content:space-between;align-items:center;margin-top:12px;color:#7a2b4a;font-size:13px}
+
+  .controls{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+  .btn{padding:8px 14px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;font-weight:700;cursor:pointer;box-shadow:0 8px 20px rgba(255,77,166,0.12)}
+  .btn.ghost{background:transparent;border:1px solid rgba(155,30,80,0.08);color:var(--muted);box-shadow:none}
+
+  /* Right panel */
+  .panel{background:linear-gradient(180deg,rgba(255,255,255,0.95),rgba(255,255,255,0.9));padding:14px;border-radius:12px}
+  .progress{height:12px;background:#ffeef7;border-radius:999px;overflow:hidden;margin-top:8px}
+  .bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%;transition:width .45s ease}
+  .small{font-size:13px;color:#7a2b4a}
+
+  /* toast top-mid */
+  .toast{position:fixed;left:50%;top:18px;transform:translateX(-50%) translateY(-10px) scale(.97);background:white;color:var(--accent);padding:10px 18px;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,0.12);opacity:0;pointer-events:none;transition:all .35s cubic-bezier(.2,.9,.2,1);z-index:200}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+
+  /* greeting & confirm popups */
+  .center-popup{
+    position:fixed;left:50%;top:40%;transform:translate(-50%,-50%) scale(.98);
+    width:min(420px,94%);background:linear-gradient(180deg,#fff,#fff6fb);border-radius:14px;padding:18px;box-shadow:0 30px 80px rgba(155,30,80,0.12);z-index:250;
+    transition:transform .28s cubic-bezier(.2,.9,.2,1),opacity .25s;
+  }
+  .center-popup.hide{opacity:0;transform:translate(-50%,-60%) scale(.96);pointer-events:none}
+  .popup-title{font-size:20px;color:#6b1140;font-weight:700;margin-bottom:6px}
+  .popup-sub{color:#7a2b4a;margin-bottom:12px}
+  .popup-actions{display:flex;gap:10px;justify-content:center}
+
+  /* overlay modal for level reward (only shown when level done) */
+  .overlay{position:fixed;inset:0;background:rgba(10,6,12,0.45);display:flex;align-items:center;justify-content:center;z-index:300;opacity:0;pointer-events:none;transition:opacity .25s}
+  .overlay.show{opacity:1;pointer-events:auto}
+  .modal{width:min(760px,94%);background:linear-gradient(180deg,#fff,#fff6fb);border-radius:14px;padding:18px;display:flex;gap:14px;align-items:center;box-shadow:0 30px 80px rgba(155,30,80,0.14)}
+  .m-left{flex:1}
+  .m-right{width:320px}
+  .big-img{width:100%;height:280px;background-size:cover;background-position:center;border-radius:10px}
+  .big-title{font-size:20px;color:#6b1140;font-weight:700;margin-bottom:8px}
+  .big-desc{color:#6b3a50}
+
+  /* confetti canvas */
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:400}
+
+  /* small responsive */
+  @media (max-width:880px){
+    .layout{flex-direction:column}
+    .right{width:100%}
+    .big-img{height:200px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<audio id="bgAudio" src="" loop preload="auto"></audio>
+<audio id="pingAudio" src="" preload="auto"></audio>
+
+<!-- toast -->
+<div id="toast" class="toast">Hai Queenn ✨</div>
+
+<!-- confetti canvas -->
+<canvas id="confetti"></canvas>
+
+<!-- Main card -->
+<div class="card" role="application" aria-label="Queenn Surprise">
+  <div class="head">
+    <div class="logo">W</div>
+    <div>
+      <div class="title">FOR  UEENN</div>
+      <div class="desc">• 5 level •</div>
+    </div>
+    <div style="margin-left:auto"><div id="levelBadge" style="background:linear-gradient(90deg,var(--accent),var(--accent-2));padding:8px 12px;border-radius:999px;color:white;font-weight:700">Level 1</div></div>
+  </div>
+
+  <div class="layout" style="margin-top:16px">
+    <div class="left">
+      <div class="qbox">
+        <div class="q-text" id="qText">Tekan tombol <strong>Mulai</strong> setelah menyetujui popup awal.</div>
+        <div class="options" id="options"></div>
+        <div class="meta">
+          <div id="qCount">0 / 25</div>
+          <div id="levelInfo">Level 1 • 0 / 5</div>
+        </div>
+      </div>
+
+      <div class="controls" style="margin-top:12px">
+        <button id="startBtn" class="btn">▶ Mulai</button>
+        <button id="skipBtn" class="btn ghost">🔁 Lewati Level</button>
+        <button id="muteBtn" class="btn ghost">🔈 Sound</button>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="panel">
+        <div class="small">Progress total</div>
+        <div class="progress"><div id="bar" class="bar"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px">
+          <div class="small">0 pts</div>
+          <div class="small">25 pts</div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="small">Wanz Tidak cabulll</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- greeting popup (first) -->
+<div id="greetPopup" class="center-popup" role="dialog" aria-modal="true">
+  <div style="text-align:center">
+    <div class="popup-title">Halo Queenn 👑💖</div>
+    <div class="popup-sub">Selamat datang, manis! Tekan <strong>Haloo</strong> biar kita mulai.</div>
+    <div class="popup-actions">
+      <button id="halooBtn" class="btn">Haloo</button>
+    </div>
+  </div>
+</div>
+
+<!-- confirm popup (appears after Haloo) -->
+<div id="confirmPopup" class="center-popup hide" role="dialog" aria-modal="true">
+  <div style="text-align:center">
+    <div class="popup-title">Mau bermain game?</div>
+    <div class="popup-sub">Ada 5 level lucu dan hadiah manis tiap level.</div>
+    <div class="popup-actions" style="position:relative">
+      <button id="mauBtn" class="btn">Mau</button>
+      <button id="tidakBtn" class="btn ghost" style="position:relative">Tidak</button>
+    </div>
+  </div>
+</div>
+
+<!-- overlay modal for level reward -->
+<div id="overlay" class="overlay" aria-hidden="true">
+  <div class="modal" role="document">
+    <div class="m-left">
+      <div class="big-title" id="modalTitle">Hadiahmu</div>
+      <div class="big-desc" id="modalDesc">Deskripsi hadiah</div>
+    </div>
+    <div class="m-right">
+      <div class="big-img" id="modalImg" style="background-image:url('https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=900&auto=format&fit=crop')"></div>
+      <div style="text-align:center;margin-top:8px">
+        <button id="closeModal" class="btn">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div> <!-- /.wrap -->
+
+<script>
+/* -------------------------
+   Config & data
+   - Change BACKSOUND_URL and CLICK_SOUND_URL to update tracks
+   ------------------------- */
+const BACKSOUND_URL = 'https://files.catbox.moe/4fvdd6.mp3'; // background music (loop)
+const CLICK_SOUND_URL = 'https://files.catbox.moe/6tn0m7.mp3'; // short click/ding effect (separate file)
+
+/* Data (unchanged) */
+const data = {
+  levels: [
+    { name: "Level 1 — Cute Start", reward: { type: "text", text: "Walpaper anak comell", imageUrl:"https://files.catbox.moe/hf45rk.jpg?q=80&w=900&auto=format&fit=crop" }, questions: [
+      { text:"Uenn suka warna apa paling banget?", options:["Pink","Lavender","Putih","Emas"] },
+      { text:"Kamu tim kucing imut atau kucing galak?", options:["Imut","Agak galak","Suka semuanya","Tidak suka kucing"] },
+      { text:"Snack favorit: coklat, permen, atau biskuit?", options:["Coklat","Permen","Biskuit","Semua"] },
+      { text:"Emoji paling sering dipakai?", options:["😍","😂","😭","🤭"] },
+      { text:"Pilih aksesori: pita, bandana, mahkota, atau kaca mata?", options:["Pita","Bandana","Mahkota","Kaca mata"] }
+    ]},
+    { name: "Level 2 — Little Sparkle", reward: { type:"image", text:"Anak gumushhhh", imageUrl:"https://files.catbox.moe/ixoj1t.jpg?q=80&w=900&auto=format&fit=crop" }, questions: [
+      { text:"Pilihan minuman sore: coklat panas atau milkshake?", options:["Coklat panas","Milkshake","Teh manis","Es buah"] },
+      { text:"Pilih aksesori rambut yang lucu:", options:["Bando","Scrunchie","Klip pita","Topi kecil"] },
+      { text:"Nonton film pilih genre?", options:["Romantis komedi","Musikal","Drama","Fantasi"] },
+      { text:"Kata yang bikin hati meleleh?", options:["Manis banget","Cute banget","Baper","Gemes"] },
+      { text:"Pilihan sarapan hari Minggu:", options:["Pancake","Roti bakar","Nasi uduk","Yogurt"] }
+    ]},
+    { name: "Level 3 — Sweet Surprise", reward: { type:"image", text:"Anak yang comell", imageUrl:"https://files.catbox.moe/nby7ov.jpg?q=80&w=900&auto=format&fit=crop" }, questions: [
+      { text:"Pilih warna lipstik buat acara:", options:["Merah muda","Nude","Merah","Glossy"] },
+      { text:"Kue ultah favorit: Red Velvet atau Strawberry?", options:["Red Velvet","Strawberry","Chocolate","Vanilla"] },
+      { text:"Koleksi apa yang pengen ditambah?", options:["Baju lucu","Sticker","Aksesoris","Figure"] },
+      { text:"Mau kado: boneka, perhiasan, tanaman mini, atau buku?", options:["Boneka","Perhiasan","Tanaman","Buku"] },
+      { text:"Pilihan weekend santai:", options:["Maraton drama","Baca buku","Jalan-jalan","Tidur seharian"] }
+    ]},
+    { name: "Level 4 — Sparkling Queen", reward: { type:"image", text:"biadari comell", imageUrl:"https://files.catbox.moe/j956it.jpg?q=80&w=900&auto=format&fit=crop" }, questions: [
+      { text:"Kalau photoshoot, mau tema apa?", options:["Vintage","Kawaii","Ethereal","Glamour"] },
+      { text:"Pilih aksesoris tangan:", options:["Cincin","Gelang","Bracelet","Tabrak warna"] },
+      { text:"Playlist mood hari ini:", options:["Chill","Happy pop","Lo-fi","Throwback"] },
+      { text:"Pilih warna background IG feed kamu:", options:["Pastel Pink","Cream","Aqua","Monokrom"] },
+      { text:"Mau hadiah kejutan: sweet note, gambar, atau voice note?", options:["Sweet note","Gambar","Voice note","All in one"] }
+    ]},
+    { name: "Level 5 — Queen's Crown", reward: { type:"text", text:"Gelar QUEEN OF CUTE", imageUrl:"https://files.catbox.moe/02bpfi.jpg?q=80&w=900&auto=format&fit=crop" }, questions: [
+      { text:"Mau candle aroma apa?", options:["Vanilla","Rose","Lavender","Citrus"] },
+      { text:"Tempat favorit buat foto:", options:["Kafe aesthetic","Kebun bunga","Rooftop","Studio"] },
+      { text:"Pilih kata-kata bio IG", options:["Dreamy girl","Sweet & bold","Cat lover","Pink forever"] },
+      { text:"Cita-cita lucu waktu kecil?", options:["Putri","Idola Kpop","Pembuat kue","Sosial media star"] },
+      { text:"Apa yang paling bikin kamu semangat hari ini?", options:["Musik","Teman","Makanan","Tidur"] }
+    ]}
+  ]
+};
+
+/* -------------------------
+   State variables
+   ------------------------- */
+let levelIndex = 0;      // 0..4
+let qIndex = 0;          // 0..4 in current level
+let totalAnswered = 0;   // 0..25
+let playing = false;
+let soundEnabled = true;
+let bgStarted = false;   // ensure bg only started once
+
+/* DOM refs */
+const qText = document.getElementById('qText');
+const optionsBox = document.getElementById('options');
+const startBtn = document.getElementById('startBtn');
+const skipBtn = document.getElementById('skipBtn');
+const muteBtn = document.getElementById('muteBtn');
+const levelBadge = document.getElementById('levelBadge');
+const levelInfo = document.getElementById('levelInfo');
+const qCount = document.getElementById('qCount');
+const bar = document.getElementById('bar');
+const toast = document.getElementById('toast');
+const overlay = document.getElementById('overlay');
+const modalTitle = document.getElementById('modalTitle');
+const modalDesc = document.getElementById('modalDesc');
+const modalImg = document.getElementById('modalImg');
+const closeModal = document.getElementById('closeModal');
+const greetPopup = document.getElementById('greetPopup');
+const confirmPopup = document.getElementById('confirmPopup');
+const halooBtn = document.getElementById('halooBtn');
+const mauBtn = document.getElementById('mauBtn');
+const tidakBtn = document.getElementById('tidakBtn');
+
+const bgAudio = document.getElementById('bgAudio');
+const pingAudio = document.getElementById('pingAudio');
+const confettiCanvas = document.getElementById('confetti');
+
+/* Setup audio src (already set by var at top) */
+bgAudio.src = BACKSOUND_URL;
+pingAudio.src = CLICK_SOUND_URL;
+bgAudio.loop = true;
+
+/* Utility: show toast */
+let toastTimer;
+function showToast(text, ms=1600){
+  toast.textContent = text;
+  toast.classList.add('show');
+
+  // play a small ding effect -- but only if it's a DIFFERENT file than background
+  if (soundEnabled && pingAudio.src && bgAudio.src && pingAudio.src !== bgAudio.src) {
+    try {
+      pingAudio.currentTime = 0;
+      pingAudio.play();
+    } catch(e){ /* ignore play errors */ }
+  }
+
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> toast.classList.remove('show'), ms);
+}
+
+/* Play background once (only after user interaction) */
+function startBackgroundIfNotStarted(){
+  if(!soundEnabled) return;
+  if(bgStarted) return;
+  bgStarted = true;
+  bgAudio.play().catch(()=>{ /* if browser blocks, ignore */ });
+}
+
+/* initial render & meta */
+function updateMeta(){
+  levelBadge.textContent = `Level ${levelIndex+1}`;
+  levelInfo.textContent = `${data.levels[levelIndex].name} • ${Math.min(qIndex,5)} / 5`;
+  qCount.textContent = `${totalAnswered} / 25`;
+  bar.style.width = `${(totalAnswered/25)*100}%`;
+}
+
+/* Render question (NOTE: do NOT start bgAudio here) */
+function renderQuestion(){
+  const lvl = data.levels[levelIndex];
+  const q = lvl.questions[qIndex];
+  qText.innerHTML = q.text;
+  optionsBox.innerHTML = '';
+  q.options.forEach((opt,i)=>{
+    const el = document.createElement('div');
+    el.className = 'opt';
+    el.innerHTML = `<div class="bullet">${String.fromCharCode(65+i)}</div><div style="flex:1">${opt}</div>`;
+    el.addEventListener('click', ()=> handleAnswer(opt, el));
+    optionsBox.appendChild(el);
+  });
+  updateMeta();
+}
+
+/* Answer handling — immediate response (no long pause) */
+function handleAnswer(answer, el){
+  // micro feedback
+  el.style.transform = 'scale(0.98)';
+  setTimeout(()=> el.style.transform = '', 120);
+
+  totalAnswered++;
+  qIndex++;
+  updateMeta();
+  showToast(`Kamu pilih: ${answer}`, 900);
+
+  if(qIndex >= 5){
+    // level complete => show level reward popup modal
+    setTimeout(()=> showLevelReward(), 220);
+  } else {
+    setTimeout(()=> renderQuestion(), 220);
+  }
+}
+
+/* show level reward modal (only when level finished) */
+function showLevelReward(){
+  const lvl = data.levels[levelIndex];
+  modalTitle.innerText = `Hadiah ${lvl.name}`;
+  modalDesc.innerText = lvl.reward.text || 'Hadiah manis buat kamu';
+  modalImg.style.backgroundImage = `url('${lvl.reward.imageUrl}')`;
+  overlay.classList.add('show');
+  overlay.setAttribute('aria-hidden','false');
+
+  // confetti for image rewards
+  if(lvl.reward.type === 'image') confettiBurst(80);
+  // play ding (will use pingAudio; pingAudio !== bgAudio so won't overlap)
+  if(soundEnabled){
+    try { pingAudio.currentTime = 0; pingAudio.play(); } catch(e){}
+  }
+
+  // close -> advance to next level (if any)
+  closeModal.dataset.next = '1';
+}
+
+/* close modal */
+function closeGiftModal(){
+  overlay.classList.remove('show');
+  overlay.setAttribute('aria-hidden','true');
+  if(closeModal.dataset.next === '1'){
+    closeModal.dataset.next = '0';
+    // advance level
+    levelIndex++;
+    qIndex = 0;
+    if(levelIndex >= data.levels.length){
+      // finished all
+      setTimeout(()=> showFinalReward(), 260);
+      playing = false;
+    } else {
+      updateMeta();
+      setTimeout(()=> {
+        renderQuestion();
+        showToast(`Selamat! Naik ke ${data.levels[levelIndex].name}`, 1400);
+      }, 260);
+    }
+  }
+}
+
+/* final reward */
+function showFinalReward(){
+  modalTitle.innerText = `QUEEN OF CUTE 👑`;
+  modalDesc.innerText = `Kamu menyelesaikan semua level!`;
+  modalImg.style.backgroundImage = `url('https://files.catbox.moe/02bpfi.jpg?q=80&w=900&auto=format&fit=crop')`;
+  overlay.classList.add('show');
+  overlay.setAttribute('aria-hidden','false');
+  confettiBurst(140);
+}
+
+/* controls */
+startBtn.addEventListener('click', ()=>{
+  if(!playing){
+    showToast("Klik 'Haloo' dulu ya kalau belum");
+    return;
+  }
+  // start only if playing is true (user must have pressed Mau)
+  if(playing){
+    qIndex = 0;
+    totalAnswered = 0;
+    levelIndex = 0;
+    updateMeta();
+    renderQuestion();
+    showToast("Game dimulai! Semangat~");
+  }
+});
+skipBtn.addEventListener('click', ()=>{
+  if(!playing){ showToast("Mulai game dulu ya"); return; }
+  showToast("Lewati sisa level...");
+  totalAnswered += (5 - qIndex);
+  levelIndex++;
+  qIndex = 0;
+  if(levelIndex >= data.levels.length){
+    showFinalReward();
+    playing = false;
+  } else {
+    updateMeta();
+    renderQuestion();
+    showToast(`Naik ke ${data.levels[levelIndex].name}`,1200);
+  }
+});
+muteBtn.addEventListener('click', ()=>{
+  soundEnabled = !soundEnabled;
+  if(soundEnabled){
+    // only resume background (do not restart it repeatedly)
+    bgAudio.play().catch(()=>{});
+    muteBtn.textContent = '🔈 Sound';
+    showToast('Sound on');
+  } else {
+    bgAudio.pause();
+    muteBtn.textContent = '🔇 Mute';
+    showToast('Sound off');
+  }
+});
+
+/* Greeting flow: greetPopup visible at load. Haloo -> confirmPopup -> Mau/Nah */
+halooBtn.addEventListener('click', ()=>{
+  // first real interaction: start bg audio ONCE
+  startBackgroundIfNotStarted();
+
+  greetPopup.classList.add('hide');
+  setTimeout(()=> {
+    confirmPopup.classList.remove('hide');
+    showToast("Siap main? Pilih Mau kalau mau lanjut!");
+  }, 260);
+});
+
+/* Mau clicked: start game flow */
+mauBtn.addEventListener('click', ()=>{
+  // if bg wasn't started (rare), start it — but halooBtn should do it already
+  startBackgroundIfNotStarted();
+
+  confirmPopup.classList.add('hide');
+  playing = true;
+  totalAnswered = 0;
+  levelIndex = 0;
+  qIndex = 0;
+  updateMeta();
+  renderQuestion();
+  showToast("Yay! Game dimulai 💖");
+});
+
+/* Tidak clicked: button moves random until player clicks Mau */
+tidakBtn.addEventListener('click', (e)=>{
+  // move the "Tidak" button to random spot within popup actions
+  shakeAndMoveButton(tidakBtn);
+});
+
+/* random move function (playful) */
+function shakeAndMoveButton(btn){
+  const parent = btn.parentElement;
+  const pw = parent.clientWidth;
+  const bw = btn.offsetWidth;
+  // compute random offset within parent action width
+  const maxX = Math.max(0, pw - bw - 16);
+  const randX = Math.floor(Math.random() * maxX);
+  btn.style.transition = 'transform 0.35s cubic-bezier(.2,.9,.2,1)';
+  btn.style.transform = `translateX(${randX - btn.offsetLeft}px) translateY(${(Math.random()*18-8).toFixed(2)}px)`;
+  // playful shake
+  btn.animate([{transform:'translateX(0) rotate(0)'},{transform:'translateX(-6px) rotate(-6deg)'},{transform:'translateX(6px) rotate(6deg)'},{transform:'translateX(0) rotate(0)'}], {duration:420});
+  // ensure it remains clickable but moves again on next click
+}
+
+/* overlay close */
+closeModal.addEventListener('click', closeGiftModal);
+overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeGiftModal(); });
+
+/* Confetti implementation (lightweight, same as before) */
+const ctx = confettiCanvas.getContext && confettiCanvas.getContext('2d');
+let confettiPieces = [];
+function confettiResize(){ confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; }
+confettiResize(); window.addEventListener('resize', confettiResize);
+
+function confettiBurst(count = 60){
+  if(!ctx) return;
+  confettiPieces = [];
+  const colors = ['#ff4da6','#ff79c6','#ffd1e8','#ffb6d5','#fff1f8','#ffd1c1'];
+  for(let i=0;i<count;i++){
+    confettiPieces.push({
+      x: innerWidth/2 + (Math.random()-0.5)*200,
+      y: innerHeight/2 - 60 + (Math.random()-0.5)*60,
+      vx: (Math.random()-0.5)*8,
+      vy: -6 - Math.random()*6,
+      r: 6 + Math.random()*8,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      rot: Math.random()*360,
+      drot: (Math.random()-0.5)*6
+    });
+  }
+  // animate upwards then fall
+  let t0 = performance.now();
+  function frame(t){
+    const dt = (t - t0)/1000;
+    t0 = t;
+    ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+    confettiPieces.forEach(p=>{
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.28; // gravity
+      p.rot += p.drot;
+      ctx.save();
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r*0.6);
+      ctx.restore();
+    });
+    confettiPieces = confettiPieces.filter(p=>p.y < confettiCanvas.height + 80);
+    if(confettiPieces.length>0){
+      requestAnimationFrame(frame);
+    } else {
+      ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* keyboard helpers */
+window.addEventListener('keydown',(e)=>{
+  if(e.key === 'm') { muteBtn.click(); }
+  if(e.key === ' '){ e.preventDefault(); if(!playing) showToast("Klik Mau dulu di popup"); else startBtn.click(); }
+});
+
+/* initial greeting toast */
+setTimeout(()=> showToast("Selamat datang, Queenn!"), 700);
+
+</script>
+</body>
+</html>
